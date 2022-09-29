@@ -3,8 +3,9 @@ from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 import voluptuous as vol
+import logging
 
-from .api import IntegrationBlueprintApiClient
+from .api import EOApiClient, EOAuthError
 from .const import (
     CONF_PASSWORD,
     CONF_USERNAME,
@@ -12,35 +13,47 @@ from .const import (
     PLATFORMS,
 )
 
+_LOGGER: logging.Logger = logging.getLogger(__package__)
 
-class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
-    """Config flow for Blueprint."""
+
+class EOMiniFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
+    "Config flow for EO Mini."
 
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
 
     def __init__(self):
-        """Initialize."""
+        "Initialize."
         self._errors = {}
+        self._description_placeholders = {}
 
     async def async_step_user(self, user_input=None):
-        """Handle a flow initialized by the user."""
+        "Handle a flow initialized by the user."
         self._errors = {}
+        self._description_placeholders = {}
 
         # Uncomment the next 2 lines if only a single instance of the integration is allowed:
         # if self._async_current_entries():
         #     return self.async_abort(reason="single_instance_allowed")
 
         if user_input is not None:
-            valid = await self._test_credentials(
-                user_input[CONF_USERNAME], user_input[CONF_PASSWORD]
-            )
-            if valid:
+            try:
+                session = async_create_clientsession(self.hass)
+                client = EOApiClient(
+                    user_input[CONF_USERNAME], user_input[CONF_PASSWORD], session
+                )
+                await client.async_get_user()
+
                 return self.async_create_entry(
                     title=user_input[CONF_USERNAME], data=user_input
                 )
-            else:
+            except EOAuthError:
+                _LOGGER.warning("Invalid credentials during config flow")
                 self._errors["base"] = "auth"
+            except Exception as ex:  # pylint: disable=broad-except
+                _LOGGER.warning("Unexpected error config flow: %s", str(ex))
+                self._description_placeholders["credential_error"] = str(ex)
+                self._errors["base"] = "credential_fail"
 
             return await self._show_config_form(user_input)
 
@@ -54,7 +67,7 @@ class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
-        return BlueprintOptionsFlowHandler(config_entry)
+        return EOMiniOptionsFlowHandler(config_entry)
 
     async def _show_config_form(self, user_input):  # pylint: disable=unused-argument
         """Show the configuration form to edit location data."""
@@ -67,34 +80,24 @@ class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 }
             ),
             errors=self._errors,
+            description_placeholders=self._description_placeholders,
         )
 
-    async def _test_credentials(self, username, password):
-        """Return true if credentials is valid."""
-        try:
-            session = async_create_clientsession(self.hass)
-            client = IntegrationBlueprintApiClient(username, password, session)
-            await client.async_get_data()
-            return True
-        except Exception:  # pylint: disable=broad-except
-            pass
-        return False
 
-
-class BlueprintOptionsFlowHandler(config_entries.OptionsFlow):
-    """Blueprint config flow options handler."""
+class EOMiniOptionsFlowHandler(config_entries.OptionsFlow):
+    "EO Mini config flow options handler."
 
     def __init__(self, config_entry):
-        """Initialize HACS options flow."""
+        "Initialize."
         self.config_entry = config_entry
         self.options = dict(config_entry.options)
 
     async def async_step_init(self, user_input=None):  # pylint: disable=unused-argument
-        """Manage the options."""
+        "Manage the options."
         return await self.async_step_user()
 
     async def async_step_user(self, user_input=None):
-        """Handle a flow initialized by the user."""
+        "Handle a flow initialized by the user."
         if user_input is not None:
             self.options.update(user_input)
             return await self._update_options()

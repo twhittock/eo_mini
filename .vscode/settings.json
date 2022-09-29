@@ -1,7 +1,7 @@
 {
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
-    "python.pythonPath": "/usr/local/bin/python",
+    "python.defaultInterpreterPath": "${workspaceFolder}/venv",
     "files.associations": {
         "*.yaml": "home-assistant"
     }

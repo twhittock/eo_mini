@@ -4,11 +4,11 @@ NAME = "EO Mini"
 DOMAIN = "eo_mini"
 DOMAIN_DATA = f"{DOMAIN}_data"
 VERSION = "0.0.1"
-ATTRIBUTION = "Data provided by http://jsonplaceholder.typicode.com/"
-ISSUE_URL = "https://github.com/custom-components/eo_mini/issues"
+ATTRIBUTION = "Data provided by EO"
+ISSUE_URL = "https://github.com/twhittock/eo_mini/issues"
 
 # Icons
-ICON = "mdi:format-quote-close"
+ICON = "mdi:ev-station"
 
 # Device classes
 BINARY_SENSOR_DEVICE_CLASS = "connectivity"
