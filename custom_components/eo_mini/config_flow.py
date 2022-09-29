@@ -1,9 +1,10 @@
 """Adds config flow for Blueprint."""
+import logging
+import traceback
+import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
-import voluptuous as vol
-import logging
 
 from .api import EOApiClient, EOAuthError
 from .const import (
@@ -24,6 +25,7 @@ class EOMiniFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     def __init__(self):
         "Initialize."
+        _LOGGER.debug("Config flow initialised")
         self._errors = {}
         self._description_placeholders = {}
 
@@ -47,11 +49,12 @@ class EOMiniFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 return self.async_create_entry(
                     title=user_input[CONF_USERNAME], data=user_input
                 )
-            except EOAuthError:
-                _LOGGER.warning("Invalid credentials during config flow")
+            except EOAuthError as ex:
+                _LOGGER.warning("Authorisation error during config flow: %s", str(ex))
                 self._errors["base"] = "auth"
             except Exception as ex:  # pylint: disable=broad-except
-                _LOGGER.warning("Unexpected error config flow: %s", str(ex))
+                _LOGGER.warning("Unexpected error during config flow: %s", str(ex))
+                _LOGGER.debug("Config flow exception %s", traceback.format_exc())
                 self._description_placeholders["credential_error"] = str(ex)
                 self._errors["base"] = "credential_fail"
 

@@ -1,4 +1,5 @@
 "EO API Client."
+from homeassistant.config_entries import ConfigEntry
 import logging
 import aiohttp
 import async_timeout
@@ -31,6 +32,16 @@ class EOAuthError(Exception):
         return self.message
 
 
+def trace_callback(message):
+    "Generate a callback with the given message, to help trace aiohttp requests"
+
+    async def tracer(_session, _context, params):
+        "Log the request lifecycle"
+        _LOGGER.debug("%s with params: %s", message, params)
+
+    return tracer
+
+
 class EOApiClient:
     "EO Mini API"
     base_url = "https://eoappi.eocharging.com"
@@ -38,10 +49,23 @@ class EOApiClient:
     def __init__(
         self, username: str, password: str, session: aiohttp.ClientSession
     ) -> None:
-        """Sample API Client."""
+        "Initialise."
+
+        trace = aiohttp.TraceConfig()
+        trace.on_request_start.append(trace_callback("Request start"))
+        trace.on_request_chunk_sent.append(trace_callback("Request sent chunk"))
+        trace.on_request_end.append(trace_callback("Request end"))
+        trace.on_request_exception.append(trace_callback("Request exception"))
+        trace.on_request_headers_sent.append(trace_callback("Request sent headers"))
+        trace.on_request_redirect.append(trace_callback("Request redirected"))
+        trace.freeze()
+
+        session.trace_configs.append(trace)
+
+        self._session = session
         self._username = username
         self._password = password
-        self._session = session
+        self._token = None
 
     async def async_get_user(self) -> dict:
         "Get the user information held by EO - including the changer we will be querying"
@@ -52,41 +76,44 @@ class EOApiClient:
     ) -> dict:
         "Handle authorization and status checks"
 
-        if aiohttp.hdrs.AUTHORIZATION not in self._session.headers:
+        if not self._token:
             response = await self._session.post(
                 f"{self.base_url}/Token",
-                data=f"grant_type=password&username=${self._username}&password=${self._password}",
+                data=f"grant_type=password&username={self._username}&password={self._password}",
             )
 
             if response.status == 200:
                 json = await response.json()
-                token = json["access_token"]
-                self._session.headers[aiohttp.hdrs.AUTHORIZATION] = f"Bearer {token}"
+                self._token = json["access_token"]
             elif response.status == 400:
                 json = await response.json()
                 raise EOAuthError(json["error_description"])
             else:
                 raise EOApiError(response.status, await response.content.read())
 
+        headers = {
+            aiohttp.hdrs.AUTHORIZATION: f"Bearer {self._token}",
+        }
+
         async with async_timeout.timeout(TIMEOUT):
             if method == "get":
-                response = await self._session.get(url, **kwargs)
+                response = await self._session.get(url, headers=headers, **kwargs)
 
             elif method == "put":
-                response = await self._session.put(url, **kwargs)
+                response = await self._session.put(url, headers=headers, **kwargs)
 
             elif method == "patch":
-                response = await self._session.patch(url, **kwargs)
+                response = await self._session.patch(url, headers=headers, **kwargs)
 
             elif method == "post":
-                response = await self._session.post(url, **kwargs)
+                response = await self._session.post(url, headers=headers, **kwargs)
 
         if response.status == 200:
             return await response.json()
-        elif response.status == 401:
-            # Handle expired tokens
+        elif response.status == 400:
+            # Handle expired/invalid tokens
             if not _reissue:
-                del self._session.headers[aiohttp.hdrs.AUTHORIZATION]
+                self._token = None  # erase the invalid token.
                 return self._async_api_wrapper(method, url, _reissue=True, **kwargs)
 
         raise EOApiError(response.status, response.content.read())
