@@ -15,7 +15,7 @@
             "credential_fail": "Error {credential_error} when validating credentials."
         },
         "abort": {
-            "single_instance_allowed": "Only a single instance is allowed."
+            "already_configured": "Device is already configured"
         }
     },
     "options": {

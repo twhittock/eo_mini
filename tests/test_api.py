@@ -1,9 +1,10 @@
 """Tests for eo_mini api."""
 import pytest
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
-from custom_components.eo_mini.api import EOApiClient, EOApiError, EOAuthError
-from homeassistant.core import HomeAssistant
+from custom_components.eo_mini.api import EOApiClient, EOAuthError
+from tests.const import EXAMPLE_USER
 
 
 def add_successful_auth_request(aioclient_mock: AiohttpClientMocker):
@@ -29,7 +30,7 @@ async def test_auth_failure(hass: HomeAssistant, aioclient_mock: AiohttpClientMo
 
     aioclient_mock.post(
         "https://eoappi.eocharging.com/Token",
-        status=401,
+        status=400,
         json={
             "error": "invalid_grant",
             "error_description": "The user name or password is incorrect.",
@@ -53,51 +54,7 @@ async def test_get_user_data_ok(
 
     aioclient_mock.get(
         "https://eoappi.eocharging.com/api/user/",
-        json={
-            "title": "",
-            "firstName": "Firstname",
-            "lastName": "Surname",
-            "userType": 0,
-            "host": 0,
-            "email": "user@example.com",
-            "mobile": "",
-            "foc": 0,
-            "isDemo": 0,
-            "tcVer": "1.1",
-            "ppVer": "1.1",
-            "pushUpdated": 1,
-            "appSetup": 1,
-            "homeHost": 12345,
-            "AID": 0,
-            "distanceUnits": 0,
-            "address": "",
-            "countryCode": "GBR",
-            "chargeDefs": {
-                "chargeStart": 0,
-                "chargeEnd": 0,
-                "chargeMin": 0,
-                "solarMode": 0,
-                "timeMode": 0,
-            },
-            "chargeOpts": {
-                "cpid": 56789,
-                "scheduleWDay": "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT00",
-                "scheduleWEnd": "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT00",
-                "tariffWDay": "00000000000000000000000000000000000000000000000000",
-                "tariffWEnd": "00000000000000000000000000000000000000000000000000",
-                "appSchedWDay": "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT00",
-                "appSchedWEnd": "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT00",
-                "solarMin": 6,
-                "timeMode": 0,
-                "solarMode": 0,
-                "opMode": 0,
-                "pricePeak": 0.0,
-                "priceOffPeak": 0.0,
-                "tnid": 0,
-                "tariffZone": "N/A",
-            },
-            "currency": {"code": "GBP", "symbol": "£", "decimals": 2},
-        },
+        json=EXAMPLE_USER,
     )
 
     user_data = await api.async_get_user()

@@ -1,5 +1,4 @@
 "EO API Client."
-from homeassistant.config_entries import ConfigEntry
 import logging
 import aiohttp
 import async_timeout
@@ -70,6 +69,10 @@ class EOApiClient:
     async def async_get_user(self) -> dict:
         "Get the user information held by EO - including the changer we will be querying"
         return await self._async_api_wrapper("get", f"{self.base_url}/api/user/")
+
+    async def async_get_list(self) -> list[dict]:
+        "Get the list of mini's in the account"
+        return await self._async_api_wrapper("get", f"{self.base_url}/api/mini/list")
 
     async def _async_api_wrapper(
         self, method: str, url: str, _reissue=False, **kwargs

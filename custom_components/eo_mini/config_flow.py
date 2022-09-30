@@ -39,23 +39,31 @@ class EOMiniFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         #     return self.async_abort(reason="single_instance_allowed")
 
         if user_input is not None:
+            unique_id = f"eo_account_{user_input[CONF_USERNAME]}"
+            await self.async_set_unique_id(unique_id)
+            self._abort_if_unique_id_configured(
+                updates={CONF_PASSWORD: user_input[CONF_PASSWORD]}
+            )
+
             try:
                 session = async_create_clientsession(self.hass)
                 client = EOApiClient(
                     user_input[CONF_USERNAME], user_input[CONF_PASSWORD], session
                 )
+
+                # make a call to the API to verify credentials.
                 await client.async_get_user()
 
                 return self.async_create_entry(
-                    title=user_input[CONF_USERNAME], data=user_input
+                    title=f"EO account {user_input[CONF_USERNAME]}", data=user_input
                 )
             except EOAuthError as ex:
                 _LOGGER.warning("Authorisation error during config flow: %s", str(ex))
                 self._errors["base"] = "auth"
             except Exception as ex:  # pylint: disable=broad-except
-                _LOGGER.warning("Unexpected error during config flow: %s", str(ex))
+                _LOGGER.error("Unexpected error during config flow: %s", str(ex))
                 _LOGGER.debug("Config flow exception %s", traceback.format_exc())
-                self._description_placeholders["credential_error"] = str(ex)
+                self._errors["credential_error"] = str(ex)
                 self._errors["base"] = "credential_fail"
 
             return await self._show_config_form(user_input)

@@ -7,15 +7,9 @@ import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.eo_mini.api import EOAuthError
 
-from custom_components.eo_mini.const import (
-    BINARY_SENSOR,
-    DOMAIN,
-    PLATFORMS,
-    SENSOR,
-    SWITCH,
-)
+from custom_components.eo_mini.const import DOMAIN
 
-from .const import MOCK_CONFIG
+from .const import EXAMPLE_LIST_MINIS, MOCK_CONFIG
 
 
 # This fixture bypasses the actual setup of the integration
@@ -54,9 +48,8 @@ async def test_successful_config_flow(hass):
 
     # Check that the config flow is complete and a new entry is created with
     # the input data
-    print(result)
     assert result["type"] == data_entry_flow.RESULT_TYPE_CREATE_ENTRY
-    assert result["title"] == "test_username"
+    assert result["title"] == "EO account test_username"
     assert result["data"] == MOCK_CONFIG
     assert result["result"]
 
@@ -71,8 +64,8 @@ async def test_failed_config_flow_bad_credentials(hass):
     assert result["step_id"] == "user"
 
     with patch(
-        "custom_components.eo_mini.EOApiClient.async_get_user",
-        side_effect=EOAuthError("Invalid blah"),
+        "custom_components.eo_mini.EOApiClient._async_api_wrapper",
+        side_effect=EOAuthError(""),
     ):
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"], user_input=MOCK_CONFIG
@@ -92,7 +85,7 @@ async def test_failed_config_flow_server_error(hass):
     assert result["step_id"] == "user"
 
     with patch(
-        "custom_components.eo_mini.EOApiClient.async_get_user",
+        "custom_components.eo_mini.EOApiClient._async_api_wrapper",
         side_effect=aiohttp.ClientError,
     ):
         result = await hass.config_entries.flow.async_configure(
@@ -100,8 +93,9 @@ async def test_failed_config_flow_server_error(hass):
         )
 
     assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
-    assert result["errors"] == {"base": "credential_fail"}
-    assert "credential_error" in result["description_placeholders"]
+    assert "base" in result["errors"]
+    assert result["errors"]["base"] == "credential_fail"
+    # assert "credential_error" in result["description_placeholders"]
 
 
 # # Our config flow also has an options flow, so we must test it as well.

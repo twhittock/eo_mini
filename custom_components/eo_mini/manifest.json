@@ -4,7 +4,7 @@
   "documentation": "https://github.com/twhittock/eo_mini",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/twhittock/eo_mini/issues",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "config_flow": true,
   "codeowners": [
     "@tomwhittock"
