@@ -4,7 +4,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 from custom_components.eo_mini.api import EOApiClient, EOAuthError
-from tests.const import EXAMPLE_USER
+from tests import json_load_file
 
 
 def add_successful_auth_request(aioclient_mock: AiohttpClientMocker):
@@ -53,8 +53,8 @@ async def test_get_user_data_ok(
     add_successful_auth_request(aioclient_mock)
 
     aioclient_mock.get(
-        "https://eoappi.eocharging.com/api/user/",
-        json=EXAMPLE_USER,
+        "https://eoappi.eocharging.com/api/user",
+        json=json_load_file("user.json"),
     )
 
     user_data = await api.async_get_user()

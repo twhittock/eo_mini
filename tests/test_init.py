@@ -12,6 +12,7 @@ from custom_components.eo_mini import (
     async_unload_entry,
 )
 from custom_components.eo_mini.const import DOMAIN
+from tests import json_load_file
 
 from .const import MOCK_CONFIG
 
@@ -21,7 +22,16 @@ async def test_setup_unload_and_reload_entry(hass):
     # Create a mock entry so we don't have to go through config flow
     config_entry = MockConfigEntry(domain=DOMAIN, data=MOCK_CONFIG, entry_id="test")
 
-    with patch("custom_components.eo_mini.EOApiClient._async_api_wrapper"):
+    with patch(
+        "custom_components.eo_mini.EOApiClient.async_get_list",
+        return_value=json_load_file("list.json"),
+    ), patch(
+        "custom_components.eo_mini.EOApiClient.async_get_user",
+        return_value=json_load_file("user.json"),
+    ), patch(
+        "custom_components.eo_mini.EOApiClient.async_get_session",
+        return_value=json_load_file("session_charging.json"),
+    ):
         # Set up the entry and assert that the values set during setup are where we expect
         # them to be. Because we have patched the BlueprintDataUpdateCoordinator.async_get_data
         # call, no code from custom_components/eo_mini/api.py actually runs.

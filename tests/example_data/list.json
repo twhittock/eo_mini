@@ -1,0 +1,17 @@
+[
+    {
+        "address": "0000ABCD",
+        "isDisabled": 0,
+        "ct1": 0.0,
+        "ct2": 0.0,
+        "ct3": 0.0,
+        "advertisedRate": 0.0,
+        "voltage": 0,
+        "timezone": "Greenwich Standard Time",
+        "chargerAddress": "0000ABCD",
+        "hubAddress": "12345678",
+        "chargerModel": 310,
+        "hubModel": 202,
+        "hubSerial": "EM-12345"
+    }
+]

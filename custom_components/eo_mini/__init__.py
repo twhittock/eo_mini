@@ -10,11 +10,11 @@ import logging
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import Config, HomeAssistant
-from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .api import EOApiClient
+from .api import EOApiClient, EOAuthError
 
 from .const import (
     CONF_PASSWORD,
@@ -27,6 +27,18 @@ from .const import (
 SCAN_INTERVAL = timedelta(minutes=30)
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
+
+
+def eo_model(hub_serial: str):
+    "Get a model from the serial number"
+    # if hub_serial.startswith("EO-"):
+    #     return "EO Mini"
+    if hub_serial.startswith("EMP-"):
+        return "EO Mini Pro"
+    if hub_serial.startswith("EM-"):
+        return "EO Mini Pro 2"
+
+    return "Unknown EO model"
 
 
 # pylint: disable-next=unused-argument
@@ -48,9 +60,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     client = EOApiClient(username, password, session)
 
     coordinator = EODataUpdateCoordinator(hass, client=client)
-    await coordinator.async_config_entry_first_refresh()
-
     hass.data[DOMAIN][entry.entry_id] = coordinator
+
+    await coordinator.async_config_entry_first_refresh()
 
     for platform in PLATFORMS:
         coordinator.platforms.append(platform)
@@ -69,6 +81,8 @@ class EODataUpdateCoordinator(DataUpdateCoordinator):
         "Initialize."
         self.api = client
         self.platforms = []
+        self.serial = ""
+        self.model = ""
         self._user_data = None
         self._minis_list = None
 
@@ -82,31 +96,18 @@ class EODataUpdateCoordinator(DataUpdateCoordinator):
 
             if not self._minis_list:
                 self._minis_list = await self.api.async_get_list()
+                assert len(self._minis_list) == 1
+                device = self._minis_list[0]
+                self.serial = device["hubSerial"]
+                self.model = eo_model(self.serial)
+
+            self.data = await self.api.async_get_session()
 
             self.async_update_listeners()
-
-            # TODO: get charge history
+        except EOAuthError as exception:
+            raise ConfigEntryAuthFailed from exception
         except Exception as exception:
             raise UpdateFailed() from exception
-
-    @property
-    def cpids(self):
-        "List of charge point IDs in the account"
-        # It feels like there should be multiple, but the only way
-        # I can get at this is to get the cpid from the user account?!
-        # No cpid info on the list of minis endpoint. Weird.
-        # We'll act like there could be more just in case.
-        yield self._user_data["chargeOpts"]["cpid"]
-
-    def get_cp_data(self, cpid):
-        "Get the charge point data for the given cpid"
-        # Again this is a bit of a lie, but surely the cpid should
-        # match up with something in the charge data.. but no.
-        # Anyway, I can only see how 1 charger could be associated
-        # with an account for now.
-        assert len(self._minis_list) == 1
-        assert cpid == self._user_data["chargeOpts"]["cpid"]
-        return self._minis_list[0]
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

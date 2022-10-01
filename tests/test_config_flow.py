@@ -9,7 +9,7 @@ from custom_components.eo_mini.api import EOAuthError
 
 from custom_components.eo_mini.const import DOMAIN
 
-from .const import EXAMPLE_LIST_MINIS, MOCK_CONFIG
+from .const import MOCK_CONFIG
 
 
 # This fixture bypasses the actual setup of the integration

@@ -1,0 +1,18 @@
+{
+    "USID": 1234567,
+    "CPID": 56789,
+    "PiTime": 1664549399,
+    "ESTime": 0,
+    "ESCost": 0,
+    "ESKWH": 81322788,
+    "ChargingTime": 11580,
+    "PayR1": 0,
+    "PayR2": 0,
+    "PayR3": 0,
+    "PayR4": 0,
+    "ULoc": "",
+    "Location": "EO Mini",
+    "Voltage": 230,
+    "IsPaused": false,
+    "IsOverridden": false
+}

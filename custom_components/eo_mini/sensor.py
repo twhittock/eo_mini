@@ -6,7 +6,8 @@ from homeassistant.components.sensor import (
     SensorStateClass,
     SensorDeviceClass,
 )
-from homeassistant.const import ENERGY_WATT_HOUR, DEVICE_CLASS_ENERGY
+from homeassistant.const import TIME_SECONDS, ENERGY_WATT_HOUR
+from homeassistant.core import callback
 
 from custom_components.eo_mini import EODataUpdateCoordinator
 
@@ -18,12 +19,17 @@ async def async_setup_entry(hass, entry, async_add_devices):
     "Setup sensor platform."
     coordinator: EODataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
     async_add_devices(
-        [EOMiniChargerEnergySensor(coordinator, cpid) for cpid in coordinator.cpids]
+        [
+            EOMiniChargerSessionEnergySensor(coordinator),
+            EOMiniChargerSessionChargingTimeSensor(coordinator),
+        ]
     )
 
 
-class EOMiniChargerEnergySensor(EOMiniChargerEntity, SensorEntity):
-    """EO Mini Sensor class."""
+class EOMiniChargerSessionEnergySensor(EOMiniChargerEntity, SensorEntity):
+    """EO Mini Charger session energy usage sensor class."""
+
+    coordinator: EODataUpdateCoordinator
 
     _attr_icon = "mdi:ev-station"
 
@@ -31,28 +37,68 @@ class EOMiniChargerEnergySensor(EOMiniChargerEntity, SensorEntity):
         self.entity_description = SensorEntityDescription(
             key=SensorDeviceClass.ENERGY,
             native_unit_of_measurement=ENERGY_WATT_HOUR,
-            device_class=DEVICE_CLASS_ENERGY,
+            device_class=SensorDeviceClass.ENERGY,
             state_class=SensorStateClass.TOTAL,
             name="Consumption",
         )
-
-        self._attr_last_reset = datetime.now()
-        self._attr_native_value = 0
-
         super().__init__(*args)
 
-    def _update_from_coordinator(self) -> None:
-        super()._update_from_coordinator()
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        "Handle updated data from the coordinator."
+        if self.coordinator.data:
+            self._attr_last_reset = datetime.fromtimestamp(
+                self.coordinator.data["PiTime"]
+            )
+            # No idea why ESKWH is stored in KWh/s...
+            self._attr_native_value = self.coordinator.data["ESKWH"] / 3600
+        else:
+            self._attr_last_reset = None
+            self._attr_native_value = 0
 
-        c: EODataUpdateCoordinator = self.coordinator
-        c.data
-
-    @property
-    def name(self):
-        "Return the name of the sensor."
-        return f"{self.model} - {self.serial} Consumption"
+        self.async_write_ha_state()
 
     @property
     def unique_id(self):
         "Return a unique ID to use for this entity."
-        return f"{DOMAIN}_charger_{self.serial}_energy"
+        return f"{DOMAIN}_charger_{self.coordinator.serial}_energy"
+
+
+class EOMiniChargerSessionChargingTimeSensor(EOMiniChargerEntity, SensorEntity):
+    """EO Mini Charger session charging time sensor class."""
+
+    coordinator: EODataUpdateCoordinator
+
+    _attr_icon = "mdi:ev-station"
+
+    def __init__(self, *args):
+        self.entity_description = SensorEntityDescription(
+            key=SensorDeviceClass.DURATION,
+            native_unit_of_measurement=TIME_SECONDS,
+            device_class=SensorDeviceClass.DURATION,
+            state_class=SensorStateClass.TOTAL,
+            name="Charging Time",
+        )
+        self._attr_native_value = 0
+        super().__init__(*args)
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        "Handle updated data from the coordinator."
+
+        if self.coordinator.data:
+            self._attr_last_reset = datetime.fromtimestamp(
+                self.coordinator.data["PiTime"]
+            )
+
+            self._attr_native_value = self.coordinator.data["ChargingTime"]
+        else:
+            self._attr_last_reset = None
+            self._attr_native_value = 0
+
+        self.async_write_ha_state()
+
+    @property
+    def unique_id(self):
+        "Return a unique ID to use for this entity."
+        return f"{DOMAIN}_charger_{self.coordinator.serial}_charging_time"
