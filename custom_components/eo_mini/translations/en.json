@@ -2,7 +2,7 @@
     "config": {
         "step": {
             "user": {
-                "title": "EO Mini",
+                "title": "Set up charge point",
                 "description": "If you need help with the configuration have a look here: https://github.com/twhittock/eo_mini",
                 "data": {
                     "username": "Username",
