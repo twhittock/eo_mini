@@ -1,10 +1,6 @@
 {
-    "name": "Integration blueprint",
-    "hacs": "1.6.0",
-    "domains": [
-        "binary_sensor",
-        "sensor",
-        "switch"
-    ],
-    "homeassistant": "0.118.0"
+    "name": "EO Mini Charger",
+    "hacs": "1.27.0",
+    "render_readme": true,
+    "homeassistant": "2022.9.0"
 }
