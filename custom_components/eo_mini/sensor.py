@@ -38,7 +38,7 @@ class EOMiniChargerSessionEnergySensor(EOMiniChargerEntity, SensorEntity):
             key=SensorDeviceClass.ENERGY,
             native_unit_of_measurement=ENERGY_WATT_HOUR,
             device_class=SensorDeviceClass.ENERGY,
-            state_class=SensorStateClass.TOTAL,
+            state_class=SensorStateClass.TOTAL_INCREASING,
             name="Consumption",
         )
         super().__init__(*args)
@@ -47,15 +47,14 @@ class EOMiniChargerSessionEnergySensor(EOMiniChargerEntity, SensorEntity):
     def _handle_coordinator_update(self) -> None:
         "Handle updated data from the coordinator."
         if self.coordinator.data:
-            self._attr_last_reset = datetime.fromtimestamp(
-                self.coordinator.data["PiTime"]
-            )
-            # No idea why ESKWH is stored in KWh/s...
-            self._attr_native_value = self.coordinator.data["ESKWH"] / 3600
-        else:
-            self._attr_last_reset = None
-            self._attr_native_value = 0
-
+            if self.coordinator.data["ESKWH"] == 0:
+                self._attr_last_reset = datetime.fromtimestamp(
+                    self.coordinator.data["PiTime"]
+                )
+                self._attr_native_value = 0
+            else:
+                # No idea why ESKWH is stored in KWh/s...
+                self._attr_native_value = self.coordinator.data["ESKWH"] / 3600
         self.async_write_ha_state()
 
     @property
@@ -76,7 +75,7 @@ class EOMiniChargerSessionChargingTimeSensor(EOMiniChargerEntity, SensorEntity):
             key=SensorDeviceClass.DURATION,
             native_unit_of_measurement=TIME_SECONDS,
             device_class=SensorDeviceClass.DURATION,
-            state_class=SensorStateClass.TOTAL,
+            state_class=SensorStateClass.TOTAL_INCREASING,
             name="Charging Time",
         )
         self._attr_native_value = 0
@@ -87,15 +86,13 @@ class EOMiniChargerSessionChargingTimeSensor(EOMiniChargerEntity, SensorEntity):
         "Handle updated data from the coordinator."
 
         if self.coordinator.data:
-            self._attr_last_reset = datetime.fromtimestamp(
-                self.coordinator.data["PiTime"]
-            )
-
-            self._attr_native_value = self.coordinator.data["ChargingTime"]
-        else:
-            self._attr_last_reset = None
-            self._attr_native_value = 0
-
+            if self.coordinator.data["ESKWH"] == 0:
+                self._attr_last_reset = datetime.fromtimestamp(
+                    self.coordinator.data["PiTime"]
+                )
+                self._attr_native_value = 0
+            else:
+                self._attr_native_value = self.coordinator.data["ChargingTime"]
         self.async_write_ha_state()
 
     @property
