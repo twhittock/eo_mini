@@ -19,12 +19,12 @@ from .api import EOApiClient, EOAuthError
 from .const import (
     CONF_PASSWORD,
     CONF_USERNAME,
+    CONF_POLL_INTERVAL,
+    DEFAULT_POLL_INTERVAL,
     DOMAIN,
     PLATFORMS,
     STARTUP_MESSAGE,
 )
-
-SCAN_INTERVAL = timedelta(minutes=1)
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
@@ -59,7 +59,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     session = async_get_clientsession(hass)
     client = EOApiClient(username, password, session)
 
-    coordinator = EODataUpdateCoordinator(hass, client=client)
+    coordinator = EODataUpdateCoordinator(
+        hass,
+        client=client,
+        poll_interval=entry.options.get(CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL),
+    )
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
     await coordinator.async_config_entry_first_refresh()
@@ -79,7 +83,9 @@ class EODataUpdateCoordinator(DataUpdateCoordinator):
 
     api: EOApiClient
 
-    def __init__(self, hass: HomeAssistant, client: EOApiClient) -> None:
+    def __init__(
+        self, hass: HomeAssistant, client: EOApiClient, poll_interval: int
+    ) -> None:
         "Initialize."
         self.api = client
         self.platforms = []
@@ -89,7 +95,12 @@ class EODataUpdateCoordinator(DataUpdateCoordinator):
         self._user_data = None
         self._minis_list = None
 
-        super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=SCAN_INTERVAL)
+        super().__init__(
+            hass,
+            _LOGGER,
+            name=DOMAIN,
+            update_interval=timedelta(minutes=poll_interval),
+        )
 
     async def _async_update_data(self):
         """Update data via library."""

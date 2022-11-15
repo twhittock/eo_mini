@@ -10,8 +10,9 @@ from .api import EOApiClient, EOAuthError
 from .const import (
     CONF_PASSWORD,
     CONF_USERNAME,
+    CONF_POLL_INTERVAL,
+    DEFAULT_POLL_INTERVAL,
     DOMAIN,
-    PLATFORMS,
 )
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
@@ -80,7 +81,7 @@ class EOMiniFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     def async_get_options_flow(config_entry):
         return EOMiniOptionsFlowHandler(config_entry)
 
-    async def _show_config_form(self, user_input):  # pylint: disable=unused-argument
+    async def _show_config_form(self, user_input):
         """Show the configuration form to edit location data."""
         return self.async_show_form(
             step_id="user",
@@ -111,20 +112,21 @@ class EOMiniOptionsFlowHandler(config_entries.OptionsFlow):
         "Handle a flow initialized by the user."
         if user_input is not None:
             self.options.update(user_input)
-            return await self._update_options()
+            return self.async_create_entry(
+                title=self.config_entry.data.get(CONF_USERNAME), data=self.options
+            )
 
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema(
                 {
-                    vol.Required(x, default=self.options.get(x, True)): bool
-                    for x in sorted(PLATFORMS)
+                    vol.Required(
+                        CONF_POLL_INTERVAL,
+                        default=self.options.get(
+                            CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL
+                        ),
+                        msg="poll_interval_mins",
+                    ): vol.All(vol.Coerce(int), vol.Range(min=1)),
                 }
             ),
-        )
-
-    async def _update_options(self):
-        """Update config entry options."""
-        return self.async_create_entry(
-            title=self.config_entry.data.get(CONF_USERNAME), data=self.options
         )

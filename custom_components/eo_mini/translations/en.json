@@ -24,7 +24,8 @@
                 "data": {
                     "binary_sensor": "Binary sensor enabled",
                     "sensor": "Sensor enabled",
-                    "switch": "Switch enabled"
+                    "switch": "Switch enabled",
+                    "poll_interval": "Poll interval (minutes)"
                 }
             }
         }

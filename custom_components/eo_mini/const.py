@@ -3,12 +3,9 @@
 NAME = "EO Mini"
 DOMAIN = "eo_mini"
 DOMAIN_DATA = f"{DOMAIN}_data"
-VERSION = "0.0.1"
+VERSION = "0.0.2"
 ATTRIBUTION = "Data provided by EO"
 ISSUE_URL = "https://github.com/twhittock/eo_mini/issues"
-
-# Device classes
-BINARY_SENSOR_DEVICE_CLASS = "connectivity"
 
 # Platforms
 SENSOR = "sensor"
@@ -16,15 +13,12 @@ SWITCH = "switch"
 PLATFORMS = [SENSOR, SWITCH]
 
 
-
 # Configuration and options
 CONF_ENABLED = "enabled"
 CONF_USERNAME = "username"
 CONF_PASSWORD = "password"
-CONF_TOKEN = "token"
-
-# Defaults
-DEFAULT_NAME = DOMAIN
+CONF_POLL_INTERVAL = "poll_interval"
+DEFAULT_POLL_INTERVAL = 5  # minutes
 
 
 STARTUP_MESSAGE = f"""

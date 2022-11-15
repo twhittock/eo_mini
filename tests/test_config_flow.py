@@ -7,7 +7,7 @@ import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.eo_mini.api import EOAuthError
 
-from custom_components.eo_mini.const import DOMAIN
+from custom_components.eo_mini.const import DOMAIN, CONF_POLL_INTERVAL
 
 from .const import MOCK_CONFIG
 
@@ -98,30 +98,30 @@ async def test_failed_config_flow_server_error(hass):
     # assert "credential_error" in result["description_placeholders"]
 
 
-# # Our config flow also has an options flow, so we must test it as well.
-# async def test_options_flow(hass):
-#     """Test an options flow."""
-#     # Create a new MockConfigEntry and add to HASS (we're bypassing config
-#     # flow entirely)
-#     entry = MockConfigEntry(domain=DOMAIN, data=MOCK_CONFIG, entry_id="test")
-#     entry.add_to_hass(hass)
+# Our config flow also has an options flow, so we must test it as well.
+async def test_options_flow(hass):
+    """Test an options flow."""
+    # Create a new MockConfigEntry and add to HASS (we're bypassing config
+    # flow entirely)
+    entry = MockConfigEntry(domain=DOMAIN, data=MOCK_CONFIG, entry_id="test")
+    entry.add_to_hass(hass)
 
-#     # Initialize an options flow
-#     result = await hass.config_entries.options.async_init(entry.entry_id)
+    # Initialize an options flow
+    result = await hass.config_entries.options.async_init(entry.entry_id)
 
-#     # Verify that the first options step is a user form
-#     assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
-#     assert result["step_id"] == "user"
+    # Verify that the first options step is a user form
+    assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
+    assert result["step_id"] == "user"
 
-#     # Enter some fake data into the form
-#     result = await hass.config_entries.options.async_configure(
-#         result["flow_id"],
-#         user_input={platform: platform != SENSOR for platform in PLATFORMS},
-#     )
+    # Enter some fake data into the form
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        user_input={CONF_POLL_INTERVAL: 100},
+    )
 
-#     # Verify that the flow finishes
-#     assert result["type"] == data_entry_flow.RESULT_TYPE_CREATE_ENTRY
-#     assert result["title"] == "test_username"
+    # Verify that the flow finishes
+    assert result["type"] == data_entry_flow.RESULT_TYPE_CREATE_ENTRY
+    assert result["title"] == "test_username"
 
-#     # Verify that the options were updated
-#     assert entry.options == {BINARY_SENSOR: True, SENSOR: False, SWITCH: True}
+    # Verify that the options were updated
+    assert entry.options == {CONF_POLL_INTERVAL: 100}
