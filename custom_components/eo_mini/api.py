@@ -5,7 +5,7 @@ import async_timeout
 
 TIMEOUT = 10
 
-_LOGGER: logging.Logger = logging.getLogger(__package__)
+_LOGGER: logging.Logger = logging.getLogger(__package__ + ".api")
 
 
 class EOApiError(Exception):
@@ -78,6 +78,24 @@ class EOApiClient:
         "Get the current session if any"
         return await self._async_api_wrapper("get", f"{self.base_url}/api/session")
 
+    async def async_post_disable(self, address) -> list[dict]:
+        "Disable the charger (lock)"
+        return await self._async_api_wrapper(
+            "post",
+            f"{self.base_url}/api/mini/disable",
+            data=f"id={address}",
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+
+    async def async_post_enable(self, address) -> list[dict]:
+        "Enable the charger (unlock)"
+        return await self._async_api_wrapper(
+            "post",
+            f"{self.base_url}/api/mini/enable",
+            data=f"id={address}",
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+
     async def _async_api_wrapper(
         self, method: str, url: str, _reissue=False, **kwargs
     ) -> dict:
@@ -98,25 +116,35 @@ class EOApiClient:
             else:
                 raise EOApiError(response.status, await response.content.read())
 
-        headers = {
-            aiohttp.hdrs.AUTHORIZATION: f"Bearer {self._token}",
-        }
+        if "headers" not in kwargs:
+            kwargs["headers"] = dict()
+
+        kwargs["headers"][aiohttp.hdrs.AUTHORIZATION] = f"Bearer {self._token}"
+
+        _LOGGER.info("Request: %s %s", method, url)
 
         async with async_timeout.timeout(TIMEOUT):
             if method == "get":
-                response = await self._session.get(url, headers=headers, **kwargs)
+                response = await self._session.get(url, **kwargs)
 
             elif method == "put":
-                response = await self._session.put(url, headers=headers, **kwargs)
+                response = await self._session.put(url, **kwargs)
 
             elif method == "patch":
-                response = await self._session.patch(url, headers=headers, **kwargs)
+                response = await self._session.patch(url, **kwargs)
 
             elif method == "post":
-                response = await self._session.post(url, headers=headers, **kwargs)
+                response = await self._session.post(url, **kwargs)
 
         if response.status == 200:
-            return await response.json()
+            if "/json" in (response.content_type or ""):
+                json = await response.json()
+                _LOGGER.info("Response: %r", json)
+                return json
+            else:
+                text = await response.read()
+                _LOGGER.info("Response: %r", text)
+                return text
         elif response.status == 400:
             # Handle expired/invalid tokens
             if not _reissue:

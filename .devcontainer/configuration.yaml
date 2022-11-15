@@ -1,9 +1,10 @@
 default_config:
 
 logger:
-  default: info
+  default: warn
   logs:
     custom_components.eo_mini: debug
+    custom_components.eo_mini.api: info
     homeassistant.loader: warn
 
 # If you need to debug uncomment the line below (doc: https://www.home-assistant.io/integrations/debugpy/)

@@ -77,10 +77,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 class EODataUpdateCoordinator(DataUpdateCoordinator):
     "Class to manage fetching data from the API."
 
+    api: EOApiClient
+
     def __init__(self, hass: HomeAssistant, client: EOApiClient) -> None:
         "Initialize."
         self.api = client
         self.platforms = []
+        self.device = {}
         self.serial = ""
         self.model = ""
         self._user_data = None
@@ -94,12 +97,11 @@ class EODataUpdateCoordinator(DataUpdateCoordinator):
             if not self._user_data:
                 self._user_data = await self.api.async_get_user()
 
-            if not self._minis_list:
-                self._minis_list = await self.api.async_get_list()
-                assert len(self._minis_list) == 1
-                device = self._minis_list[0]
-                self.serial = device["hubSerial"]
-                self.model = eo_model(self.serial)
+            self._minis_list = await self.api.async_get_list()
+            assert len(self._minis_list) == 1
+            self.device = self._minis_list[0]
+            self.serial = self.device["hubSerial"]
+            self.model = eo_model(self.serial)
 
             self.data = await self.api.async_get_session()
 

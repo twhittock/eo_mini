@@ -11,6 +11,7 @@ def add_successful_auth_request(aioclient_mock: AiohttpClientMocker):
     "Add the auth request we must issue to get the bearer token for API calls"
     aioclient_mock.post(
         "https://eoappi.eocharging.com/Token",
+        headers={"Content-Type": "application/json; charset=utf-8"},
         json={
             "access_token": "test_token_data_123498712349862314987",
             "token_type": "bearer",
@@ -31,6 +32,7 @@ async def test_auth_failure(hass: HomeAssistant, aioclient_mock: AiohttpClientMo
     aioclient_mock.post(
         "https://eoappi.eocharging.com/Token",
         status=400,
+        headers={"Content-Type": "application/json; charset=utf-8"},
         json={
             "error": "invalid_grant",
             "error_description": "The user name or password is incorrect.",
@@ -54,9 +56,26 @@ async def test_get_user_data_ok(
 
     aioclient_mock.get(
         "https://eoappi.eocharging.com/api/user",
+        headers={"Content-Type": "application/json; charset=utf-8"},
         json=json_load_file("user.json"),
     )
 
     user_data = await api.async_get_user()
     print(user_data)
     assert user_data["chargeOpts"]["cpid"] == 56789
+
+
+async def test_post_disable(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker):
+    "Disable posts ok"
+
+    # To test the api submodule, we first create an instance of our API client
+    api = EOApiClient("test", "test", async_get_clientsession(hass))
+
+    add_successful_auth_request(aioclient_mock)
+
+    aioclient_mock.post(
+        "https://eoappi.eocharging.com/api/mini/disable",
+        text="",
+    )
+
+    await api.async_post_disable("00000000")
