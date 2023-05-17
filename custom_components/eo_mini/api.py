@@ -103,7 +103,11 @@ class EOApiClient:
         "Handle authorization and status checks"
 
         if not self._token:
-            body = { 'grant_type' : 'password', 'username' : self._username, 'password' : self._password }
+            body = {
+                "grant_type": "password",
+                "username": self._username,
+                "password": self._password,
+            }
             response = await self._session.post(
                 f"{self.base_url}/token",
                 data=urllib.parse.urlencode(body),
