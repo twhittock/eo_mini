@@ -2,7 +2,13 @@
 
 _Component to integrate with [EO Mini chargers](https://www.eocharging.com/support/home-charging/eo-mini)._
 
-## Installation
+## Installation (HACS - preferred)
+
+1. Add this repo as a custom repository in HACS. https://hacs.xyz/docs/faq/custom_repositories/
+2. Add EO Mini Charger component.
+3. In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "EO Mini" enter username & password from the app.
+
+## Installation (manual)
 
 1. Using the tool of choice open the directory (folder) for your HA configuration (where you find `configuration.yaml`).
 2. If you do not have a `custom_components` directory (folder) there, you need to create it.
