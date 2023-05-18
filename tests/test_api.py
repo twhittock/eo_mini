@@ -10,7 +10,7 @@ from tests import json_load_file
 def add_successful_auth_request(aioclient_mock: AiohttpClientMocker):
     "Add the auth request we must issue to get the bearer token for API calls"
     aioclient_mock.post(
-        "https://eoappi.eocharging.com/Token",
+        "https://eoappi.eocharging.com/token",
         headers={"Content-Type": "application/json; charset=utf-8"},
         json={
             "access_token": "test_token_data_123498712349862314987",
@@ -30,7 +30,7 @@ async def test_auth_failure(hass: HomeAssistant, aioclient_mock: AiohttpClientMo
     api = EOApiClient("test", "test", async_get_clientsession(hass))
 
     aioclient_mock.post(
-        "https://eoappi.eocharging.com/Token",
+        "https://eoappi.eocharging.com/token",
         status=400,
         headers={"Content-Type": "application/json; charset=utf-8"},
         json={
