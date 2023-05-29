@@ -8,9 +8,10 @@ ATTRIBUTION = "Data provided by EO"
 ISSUE_URL = "https://github.com/twhittock/eo_mini/issues"
 
 # Platforms
+NUMBER = "number"
 SENSOR = "sensor"
 SWITCH = "switch"
-PLATFORMS = [SENSOR, SWITCH]
+PLATFORMS = [NUMBER, SENSOR, SWITCH]
 
 
 # Configuration and options

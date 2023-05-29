@@ -97,6 +97,45 @@ class EOApiClient:
             headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
 
+    async def async_charge_mode_disable(
+        self, mode: str, charge_options: dict
+    ) -> list[dict]:
+        "Disable the specified charge mode"
+        data = charge_options
+        data[mode] = 0
+        return await self._async_api_wrapper(
+            "post",
+            f"{self.base_url}/api/user/updateChargeOpts",
+            data=data,
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+
+    async def async_charge_mode_enable(
+        self, mode: str, charge_options: dict
+    ) -> list[dict]:
+        "Enable the specified charge mode"
+        data = charge_options
+        data[mode] = 1
+        return await self._async_api_wrapper(
+            "post",
+            f"{self.base_url}/api/user/updateChargeOpts",
+            data=data,
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+
+    async def async_solar_min_charge_current(
+        self, current: int, charge_options: dict
+    ) -> list[dict]:
+        "Set the solar minimum rate of charge"
+        data = charge_options
+        data["solarMin"] = current
+        return await self._async_api_wrapper(
+            "post",
+            f"{self.base_url}/api/user/updateChargeOpts",
+            data=data,
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+
     async def _async_api_wrapper(
         self, method: str, url: str, _reissue=False, **kwargs
     ) -> dict:

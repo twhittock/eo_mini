@@ -92,6 +92,7 @@ class EODataUpdateCoordinator(DataUpdateCoordinator):
         self.device = {}
         self.serial = ""
         self.model = ""
+        self.charge_options = {}
         self._user_data = None
         self._minis_list = None
 
@@ -105,8 +106,8 @@ class EODataUpdateCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         """Update data via library."""
         try:
-            if not self._user_data:
-                self._user_data = await self.api.async_get_user()
+            self._user_data = await self.api.async_get_user()
+            self.charge_options = self._user_data["chargeOpts"]
 
             self._minis_list = await self.api.async_get_list()
             assert len(self._minis_list) == 1
