@@ -25,18 +25,19 @@ async def async_setup_entry(hass, entry, async_add_devices):
 
 class EOMiniSolarMinCurrent(EOMiniChargerEntity, NumberEntity):
     """Number entity to represent the solar minimum rate of charge."""
+
     coordinator: EODataUpdateCoordinator
 
     def __init__(self, *args):
         self.entity_description = NumberEntityDescription(
-            key = "Minimum_charge_current",
-            name = "Minimum charge current",
-            native_step = 1,
-            native_min_value = 6,
-            native_max_value = 32,
-            native_unit_of_measurement = UnitOfElectricCurrent.AMPERE,
-            device_class = NumberDeviceClass.CURRENT,
-            icon = "mdi:current-ac",
+            key="Minimum_charge_current",
+            name="Minimum charge current",
+            native_step=1,
+            native_min_value=6,
+            native_max_value=32,
+            native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
+            device_class=NumberDeviceClass.CURRENT,
+            icon="mdi:current-ac",
         )
         super().__init__(*args)
         self._attr_mode = NumberMode.BOX
@@ -47,7 +48,6 @@ class EOMiniSolarMinCurrent(EOMiniChargerEntity, NumberEntity):
         if self.coordinator.charge_options:
             self._attr_native_value = int(self.coordinator.charge_options["solarMin"])
         self.async_write_ha_state()
-
 
     async def async_set_native_value(self, value: float) -> None:
         """Set new minimum solar charge current value."""

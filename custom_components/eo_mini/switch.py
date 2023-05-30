@@ -101,8 +101,7 @@ class EOMiniOffPeakSwitch(EOMiniChargerEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs):
         await self.coordinator.api.async_charge_mode_enable(
-            "opMode",
-            self.coordinator.charge_options
+            "opMode", self.coordinator.charge_options
         )
 
         # Get the state back from the API
@@ -110,8 +109,7 @@ class EOMiniOffPeakSwitch(EOMiniChargerEntity, SwitchEntity):
 
     async def async_turn_off(self, **kwargs):
         await self.coordinator.api.async_charge_mode_disable(
-            "opMode",
-            self.coordinator.charge_options
+            "opMode", self.coordinator.charge_options
         )
 
         # Get the state back from the API
@@ -150,8 +148,7 @@ class EOMiniSolarSwitch(EOMiniChargerEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs):
         await self.coordinator.api.async_charge_mode_enable(
-            "solarMode",
-            self.coordinator.charge_options
+            "solarMode", self.coordinator.charge_options
         )
 
         # Get the state back from the API
@@ -159,8 +156,7 @@ class EOMiniSolarSwitch(EOMiniChargerEntity, SwitchEntity):
 
     async def async_turn_off(self, **kwargs):
         await self.coordinator.api.async_charge_mode_disable(
-            "solarMode",
-            self.coordinator.charge_options
+            "solarMode", self.coordinator.charge_options
         )
 
         # Get the state back from the API
@@ -199,8 +195,7 @@ class EOMiniScheduledSwitch(EOMiniChargerEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs):
         await self.coordinator.api.async_charge_mode_enable(
-            "timeMode",
-            self.coordinator.charge_options
+            "timeMode", self.coordinator.charge_options
         )
 
         # Get the state back from the API
@@ -208,8 +203,7 @@ class EOMiniScheduledSwitch(EOMiniChargerEntity, SwitchEntity):
 
     async def async_turn_off(self, **kwargs):
         await self.coordinator.api.async_charge_mode_disable(
-            "timeMode",
-            self.coordinator.charge_options
+            "timeMode", self.coordinator.charge_options
         )
 
         # Get the state back from the API
