@@ -100,16 +100,16 @@ class EOMiniOffPeakSwitch(EOMiniChargerEntity, SwitchEntity):
         self.async_write_ha_state()
 
     async def async_turn_on(self, **kwargs):
-        await self.coordinator.api.async_charge_mode_enable(
-            "opMode", self.coordinator.charge_options
+        await self.coordinator.api.async_update_charge_options(
+            "opMode", 1, self.coordinator.charge_options
         )
 
         # Get the state back from the API
         await self.coordinator.async_refresh()
 
     async def async_turn_off(self, **kwargs):
-        await self.coordinator.api.async_charge_mode_disable(
-            "opMode", self.coordinator.charge_options
+        await self.coordinator.api.async_update_charge_options(
+            "opMode", 0, self.coordinator.charge_options
         )
 
         # Get the state back from the API
@@ -147,16 +147,16 @@ class EOMiniSolarSwitch(EOMiniChargerEntity, SwitchEntity):
         self.async_write_ha_state()
 
     async def async_turn_on(self, **kwargs):
-        await self.coordinator.api.async_charge_mode_enable(
-            "solarMode", self.coordinator.charge_options
+        await self.coordinator.api.async_update_charge_options(
+            "solarMode", 1, self.coordinator.charge_options
         )
 
         # Get the state back from the API
         await self.coordinator.async_refresh()
 
     async def async_turn_off(self, **kwargs):
-        await self.coordinator.api.async_charge_mode_disable(
-            "solarMode", self.coordinator.charge_options
+        await self.coordinator.api.async_update_charge_options(
+            "solarMode", 0, self.coordinator.charge_options
         )
 
         # Get the state back from the API
@@ -194,16 +194,16 @@ class EOMiniScheduledSwitch(EOMiniChargerEntity, SwitchEntity):
         self.async_write_ha_state()
 
     async def async_turn_on(self, **kwargs):
-        await self.coordinator.api.async_charge_mode_enable(
-            "timeMode", self.coordinator.charge_options
+        await self.coordinator.api.async_update_charge_options(
+            "timeMode", 1, self.coordinator.charge_options
         )
 
         # Get the state back from the API
         await self.coordinator.async_refresh()
 
     async def async_turn_off(self, **kwargs):
-        await self.coordinator.api.async_charge_mode_disable(
-            "timeMode", self.coordinator.charge_options
+        await self.coordinator.api.async_update_charge_options(
+            "timeMode", 0, self.coordinator.charge_options
         )
 
         # Get the state back from the API

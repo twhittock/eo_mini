@@ -1,8 +1,10 @@
 "EO API Client."
 import logging
+from typing import Union
+import urllib
+
 import aiohttp
 import async_timeout
-import urllib
 
 TIMEOUT = 10
 
@@ -97,38 +99,18 @@ class EOApiClient:
             headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
 
-    async def async_charge_mode_disable(
-        self, mode: str, charge_options: dict
+    async def async_update_charge_options(
+        self, key: str, value: Union[str, int, float], charge_options: dict
     ) -> list[dict]:
-        "Disable the specified charge mode"
-        data = charge_options
-        data[mode] = 0
-        return await self._async_api_wrapper(
-            "post",
-            f"{self.base_url}/api/user/updateChargeOpts",
-            data=data,
-            headers={"Content-Type": "application/x-www-form-urlencoded"},
-        )
+        """Update entry in the chargeOpts dictionary.
 
-    async def async_charge_mode_enable(
-        self, mode: str, charge_options: dict
-    ) -> list[dict]:
-        "Enable the specified charge mode"
+        Args:
+            key: The entry in the chargeOpts dictionary to update
+            value: The value to assign to the dictionary item
+            charge_options: The charge_options dictionary to update
+        """
         data = charge_options
-        data[mode] = 1
-        return await self._async_api_wrapper(
-            "post",
-            f"{self.base_url}/api/user/updateChargeOpts",
-            data=data,
-            headers={"Content-Type": "application/x-www-form-urlencoded"},
-        )
-
-    async def async_solar_min_charge_current(
-        self, current: int, charge_options: dict
-    ) -> list[dict]:
-        "Set the solar minimum rate of charge"
-        data = charge_options
-        data["solarMin"] = current
+        data[key] = value
         return await self._async_api_wrapper(
             "post",
             f"{self.base_url}/api/user/updateChargeOpts",

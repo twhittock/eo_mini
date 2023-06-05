@@ -51,8 +51,8 @@ class EOMiniSolarMinCurrent(EOMiniChargerEntity, NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         """Set new minimum solar charge current value."""
-        await self.coordinator.api.async_solar_min_charge_current(
-            int(value), self.coordinator.charge_options
+        await self.coordinator.api.async_update_charge_options(
+            "solarMin", int(value), self.coordinator.charge_options
         )
         await self.coordinator.async_refresh()
 
