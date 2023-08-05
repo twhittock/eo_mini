@@ -1,5 +1,6 @@
 "EOMiniChargerEntity to hold all charger information"
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.helpers.entity import DeviceInfo
 
 from custom_components.eo_mini import EODataUpdateCoordinator
 
@@ -34,13 +35,12 @@ class EOMiniChargerEntity(CoordinatorEntity):
 
     @property
     def device_info(self):
-        return {
-            "identifiers": {(DOMAIN, self.device_unique_id)},
-            "name": self.device_name,
-            "serial": self.coordinator.serial,
-            "model": self.coordinator.model,
-            "manufacturer": "EO",
-        }
+        return DeviceInfo(
+            identifiers={(DOMAIN, self.device_unique_id)},
+            name=self.device_name,
+            model=self.coordinator.model,
+            manufacturer="EO",
+        )
 
     @property
     def extra_state_attributes(self):
