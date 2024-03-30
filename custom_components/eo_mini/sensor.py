@@ -38,7 +38,7 @@ class EOMiniChargerSessionEnergySensor(EOMiniChargerEntity, SensorEntity):
             key=SensorDeviceClass.ENERGY,
             native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
             device_class=SensorDeviceClass.ENERGY,
-            state_class=SensorStateClass.TOTAL_INCREASING,
+            state_class=SensorStateClass.TOTAL,
             name="Consumption",
         )
         super().__init__(*args)
