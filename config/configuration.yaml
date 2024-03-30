@@ -1,5 +1,8 @@
 default_config:
 
+http:
+  server_port: 9000
+
 logger:
   default: warn
   logs:
@@ -8,4 +11,4 @@ logger:
     homeassistant.loader: warn
 
 # If you need to debug uncomment the line below (doc: https://www.home-assistant.io/integrations/debugpy/)
-debugpy:
+#debugpy:
