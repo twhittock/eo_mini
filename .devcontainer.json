@@ -11,6 +11,9 @@
             "onAutoForward": "notify"
         }
     },
+    "mounts": [
+        "type=bind,source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,readonly"
+    ],
     "customizations": {
         "vscode": {
             "extensions": [
