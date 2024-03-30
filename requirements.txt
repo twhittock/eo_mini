@@ -1,4 +1,4 @@
-homeassistant==2023.8.1
-pip<23.2,>=21.3.1
-ruff
-colorlog
+colorlog==6.7.0
+homeassistant==2024.3.1
+pip>=21.0,<23.2
+ruff==0.0.292
