@@ -6,7 +6,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
     SensorDeviceClass,
 )
-from homeassistant.const import TIME_SECONDS, ENERGY_WATT_HOUR
+from homeassistant.const import UnitOfTime, UnitOfEnergy
 from homeassistant.core import callback
 
 from custom_components.eo_mini import EODataUpdateCoordinator
@@ -36,7 +36,7 @@ class EOMiniChargerSessionEnergySensor(EOMiniChargerEntity, SensorEntity):
     def __init__(self, *args):
         self.entity_description = SensorEntityDescription(
             key=SensorDeviceClass.ENERGY,
-            native_unit_of_measurement=ENERGY_WATT_HOUR,
+            native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
             device_class=SensorDeviceClass.ENERGY,
             state_class=SensorStateClass.TOTAL_INCREASING,
             name="Consumption",
@@ -73,7 +73,7 @@ class EOMiniChargerSessionChargingTimeSensor(EOMiniChargerEntity, SensorEntity):
     def __init__(self, *args):
         self.entity_description = SensorEntityDescription(
             key=SensorDeviceClass.DURATION,
-            native_unit_of_measurement=TIME_SECONDS,
+            native_unit_of_measurement=UnitOfTime.SECONDS,
             device_class=SensorDeviceClass.DURATION,
             state_class=SensorStateClass.TOTAL_INCREASING,
             name="Charging Time",
