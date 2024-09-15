@@ -1,6 +1,8 @@
 # EO Mini
 
-_Component to integrate with [EO Mini chargers](https://www.eocharging.com/support/home-charging/eo-mini)._
+_Home Assistant component to integrate with [EO Mini chargers](https://www.eocharging.com/support/home-charging/eo-mini)._
+
+Note that the EO Mini Pro 3 uses a different app than this Home Assistant integration. If you are able to use the "EO Smart Home" app to log in, this integration should work, but not if you use the "EO Charging" app.
 
 ## Installation (HACS - preferred)
 
