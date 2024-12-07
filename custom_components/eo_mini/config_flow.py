@@ -3,6 +3,7 @@ import logging
 import traceback
 import voluptuous as vol
 from homeassistant import config_entries
+from homeassistant.config_entries import ConfigEntry, ConfigFlow, OptionsFlow
 from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
@@ -18,7 +19,7 @@ from .const import (
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 
-class EOMiniFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
+class EOMiniFlowHandler(ConfigFlow, domain=DOMAIN):
     "Config flow for EO Mini."
 
     VERSION = 1
@@ -96,13 +97,13 @@ class EOMiniFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
 
-class EOMiniOptionsFlowHandler(config_entries.OptionsFlow):
+class EOMiniOptionsFlowHandler(OptionsFlow):
     "EO Mini config flow options handler."
 
-    def __init__(self, config_entry):
+    def __init__(self, config_entry: ConfigEntry):
         "Initialize."
-        self.config_entry = config_entry
-        self.options = dict(config_entry.options)
+        self._entry = config_entry
+        self._options = config_entry.options
 
     async def async_step_init(self, user_input=None):  # pylint: disable=unused-argument
         "Manage the options."
