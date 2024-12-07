@@ -1,4 +1,5 @@
 """Adds config flow for Blueprint."""
+
 import logging
 import traceback
 import voluptuous as vol

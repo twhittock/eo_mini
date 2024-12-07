@@ -1,4 +1,5 @@
 """Sensor platform for EO Mini."""
+
 from datetime import datetime
 from homeassistant.components.sensor import (
     SensorEntity,
@@ -104,6 +105,7 @@ class EOMiniChargerSessionChargingTimeSensor(EOMiniChargerEntity, SensorEntity):
     def unique_id(self):
         "Return a unique ID to use for this entity."
         return f"{DOMAIN}_charger_{self.coordinator.serial}_charging_time"
+
 
 class EOMiniChargerVehicleConnectedSensor(EOMiniChargerEntity, BinarySensorEntity):
     """EO Mini Charger vehicle connected binary sensor class."""

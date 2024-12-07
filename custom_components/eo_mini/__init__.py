@@ -4,6 +4,7 @@ Custom integration to integrate EO Mini with Home Assistant.
 For more details about this integration, please refer to
 https://github.com/twhittock/eo_mini
 """
+
 import asyncio
 from datetime import timedelta
 import logging
