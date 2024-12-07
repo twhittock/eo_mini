@@ -9,9 +9,10 @@ from datetime import timedelta
 import logging
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import Config, HomeAssistant
+from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.typing import ConfigType
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import EOApiClient, EOAuthError
@@ -42,7 +43,7 @@ def eo_model(hub_serial: str):
 
 
 # pylint: disable-next=unused-argument
-async def async_setup(hass: HomeAssistant, config: Config):
+async def async_setup(hass: HomeAssistant, config: ConfigType):
     "Setting up this integration using YAML is not supported."
     return True
 
@@ -67,7 +68,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
     await coordinator.async_config_entry_first_refresh()
-    
+
     coordinator.platforms.extend(PLATFORMS)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
