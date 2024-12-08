@@ -128,10 +128,10 @@ class EOMiniChargerVehicleConnectedSensor(EOMiniChargerEntity, BinarySensorEntit
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
         # Check if vehicle is connected based on coordinator data
-        if self.coordinator.data is not None:
-            self._attr_is_on = STATE_ON
-        else:
+        if self.coordinator.data is None:
             self._attr_is_on = STATE_OFF
+        else:
+            self._attr_is_on = STATE_ON
         self.async_write_ha_state()
 
     @property

@@ -151,10 +151,6 @@ class EOApiClient:
                 text = await response.read()
                 _LOGGER.info("Response: %r", text)
                 return text
-        elif response.status == 404:
-            # Request is valid but no data is found
-            _LOGGER.info("Response: 404 Not Found")
-            return None
         elif response.status == 400:
             # Handle expired/invalid tokens
             if not _reissue:

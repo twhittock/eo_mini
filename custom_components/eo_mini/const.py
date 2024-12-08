@@ -10,7 +10,8 @@ ISSUE_URL = "https://github.com/twhittock/eo_mini/issues"
 # Platforms
 SENSOR = "sensor"
 SWITCH = "switch"
-PLATFORMS = [SENSOR, SWITCH]
+BINARY_SENSOR = "binary_sensor"
+PLATFORMS = [SENSOR, BINARY_SENSOR, SWITCH]
 
 
 # Configuration and options
