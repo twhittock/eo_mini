@@ -6,12 +6,10 @@ from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
 )
 from homeassistant.core import callback
-from homeassistant.const import STATE_ON, STATE_OFF
 
 from custom_components.eo_mini import EODataUpdateCoordinator
 from .const import DOMAIN
 from .entity import EOMiniChargerEntity
-
 
 async def async_setup_entry(hass, entry, async_add_devices):
     """Setup binary sensor platform."""
@@ -37,17 +35,17 @@ class EOMiniChargerVehicleConnectedSensor(EOMiniChargerEntity, BinarySensorEntit
             device_class=BinarySensorDeviceClass.CONNECTIVITY,
             name="Vehicle Connected",
         )
+        # Default state is OFF (vehicle disconnected)
         self._attr_is_on = False
         super().__init__(*args)
 
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
-        # Check if vehicle is connected based on coordinator data
         if self.coordinator.data is None:
-            self._attr_is_on = STATE_OFF
+            self._attr_is_on = False
         else:
-            self._attr_is_on = STATE_ON
+            self._attr_is_on = True
         self.async_write_ha_state()
 
     @property
