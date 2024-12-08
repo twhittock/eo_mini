@@ -104,7 +104,7 @@ class EOMiniOptionsFlowHandler(OptionsFlow):
     def __init__(self, config_entry: ConfigEntry):
         "Initialize."
         self._entry = config_entry
-        self._options = config_entry.options
+        self.options = dict(config_entry.options)
 
     async def async_step_init(self, user_input=None):  # pylint: disable=unused-argument
         "Manage the options."

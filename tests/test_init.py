@@ -1,5 +1,6 @@
 "Test integration_blueprint setup process."
 from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.config_entries import ConfigEntryState
 import pytest
 import aiohttp
 from unittest.mock import patch
@@ -20,7 +21,7 @@ from .const import MOCK_CONFIG
 async def test_setup_unload_and_reload_entry(hass):
     """Test entry setup and unload."""
     # Create a mock entry so we don't have to go through config flow
-    config_entry = MockConfigEntry(domain=DOMAIN, data=MOCK_CONFIG, entry_id="test")
+    config_entry = MockConfigEntry(domain=DOMAIN, data=MOCK_CONFIG, entry_id="test", state=ConfigEntryState.LOADED)
 
     with patch(
         "custom_components.eo_mini.EOApiClient.async_get_list",
@@ -31,6 +32,9 @@ async def test_setup_unload_and_reload_entry(hass):
     ), patch(
         "custom_components.eo_mini.EOApiClient.async_get_session",
         return_value=json_load_file("session_charging.json"),
+    ), patch(
+        "custom_components.eo_mini.EOApiClient.async_get_session_liveness",
+        return_value=json_load_file("session_liveness.json"),
     ):
         # Set up the entry and assert that the values set during setup are where we expect
         # them to be. Because we have patched the BlueprintDataUpdateCoordinator.async_get_data
