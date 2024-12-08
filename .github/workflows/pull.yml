@@ -52,4 +52,5 @@ jobs:
             --cov custom_components.eo_mini \
             -o console_output_style=count \
             -p no:sugar \
+            --asyncio-mode=auto \
             tests
