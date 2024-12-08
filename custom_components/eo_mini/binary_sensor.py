@@ -11,6 +11,7 @@ from custom_components.eo_mini import EODataUpdateCoordinator
 from .const import DOMAIN
 from .entity import EOMiniChargerEntity
 
+
 async def async_setup_entry(hass, entry, async_add_devices):
     """Setup binary sensor platform."""
     coordinator: EODataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
@@ -28,6 +29,7 @@ class EOMiniChargerVehicleConnectedSensor(EOMiniChargerEntity, BinarySensorEntit
 
     _attr_icon = "mdi:car-electric"
     _attr_device_class = BinarySensorDeviceClass.CONNECTIVITY
+    _previous_state = None
 
     def __init__(self, *args):
         self.entity_description = BinarySensorEntityDescription(
@@ -35,17 +37,13 @@ class EOMiniChargerVehicleConnectedSensor(EOMiniChargerEntity, BinarySensorEntit
             device_class=BinarySensorDeviceClass.CONNECTIVITY,
             name="Vehicle Connected",
         )
-        # Default state is OFF (vehicle disconnected)
         self._attr_is_on = False
         super().__init__(*args)
 
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
-        if self.coordinator.data is None:
-            self._attr_is_on = False
-        else:
-            self._attr_is_on = True
+        self._attr_is_on = self.coordinator.live_session
         self.async_write_ha_state()
 
     @property

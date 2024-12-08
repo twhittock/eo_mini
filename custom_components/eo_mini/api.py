@@ -78,6 +78,11 @@ class EOApiClient:
     async def async_get_session(self) -> list[dict]:
         "Get the current session if any"
         return await self._async_api_wrapper("get", f"{self.base_url}/api/session")
+    
+    async def async_get_session_liveness(self)-> bool:
+        "Get the session liveness state"
+        live = await self._async_api_wrapper("get", f"{self.base_url}/api/session/alive")
+        return live is not None
 
     async def async_post_disable(self, address) -> list[dict]:
         "Disable the charger (lock)"
@@ -151,6 +156,8 @@ class EOApiClient:
                 text = await response.read()
                 _LOGGER.info("Response: %r", text)
                 return text
+        if response.status == 404:
+                return None
         elif response.status == 400:
             # Handle expired/invalid tokens
             if not _reissue:

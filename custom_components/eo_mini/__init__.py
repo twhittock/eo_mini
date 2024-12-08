@@ -112,7 +112,7 @@ class EODataUpdateCoordinator(DataUpdateCoordinator):
             self.device = self._minis_list[0]
             self.serial = self.device["hubSerial"]
             self.model = eo_model(self.serial)
-
+            self.live_session = await self.api.async_get_session_liveness()
             self.data = await self.api.async_get_session()
 
             self.async_update_listeners()
