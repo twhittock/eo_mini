@@ -8,13 +8,7 @@ from homeassistant.components.sensor import (
     SensorDeviceClass,
 )
 
-from homeassistant.components.binary_sensor import (
-    BinarySensorEntity,
-    BinarySensorEntityDescription,
-    BinarySensorDeviceClass,
-)
-
-from homeassistant.const import UnitOfTime, UnitOfEnergy, STATE_ON, STATE_OFF
+from homeassistant.const import UnitOfTime, UnitOfEnergy
 from homeassistant.core import callback
 
 from custom_components.eo_mini import EODataUpdateCoordinator
@@ -30,7 +24,6 @@ async def async_setup_entry(hass, entry, async_add_devices):
         [
             EOMiniChargerSessionEnergySensor(coordinator),
             EOMiniChargerSessionChargingTimeSensor(coordinator),
-            EOMiniChargerVehicleConnectedSensor(coordinator),
         ]
     )
 
@@ -105,36 +98,3 @@ class EOMiniChargerSessionChargingTimeSensor(EOMiniChargerEntity, SensorEntity):
     def unique_id(self):
         "Return a unique ID to use for this entity."
         return f"{DOMAIN}_charger_{self.coordinator.serial}_charging_time"
-
-
-class EOMiniChargerVehicleConnectedSensor(EOMiniChargerEntity, BinarySensorEntity):
-    """EO Mini Charger vehicle connected binary sensor class."""
-
-    coordinator: EODataUpdateCoordinator
-
-    _attr_icon = "mdi:car-electric"
-    _attr_device_class = BinarySensorDeviceClass.CONNECTIVITY
-
-    def __init__(self, *args):
-        self.entity_description = BinarySensorEntityDescription(
-            key=BinarySensorDeviceClass.CONNECTIVITY,
-            device_class=BinarySensorDeviceClass.CONNECTIVITY,
-            name="Vehicle Connected",
-        )
-        self._attr_is_on = False
-        super().__init__(*args)
-
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        """Handle updated data from the coordinator."""
-        # Check if vehicle is connected based on coordinator data
-        if self.coordinator.data is None:
-            self._attr_is_on = STATE_OFF
-        else:
-            self._attr_is_on = STATE_ON
-        self.async_write_ha_state()
-
-    @property
-    def unique_id(self):
-        """Return a unique ID for this entity."""
-        return f"{DOMAIN}_charger_{self.coordinator.serial}_vehicle_connected"
