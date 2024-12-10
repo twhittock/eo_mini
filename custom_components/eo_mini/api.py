@@ -80,7 +80,14 @@ class EOApiClient:
         return await self._async_api_wrapper("get", f"{self.base_url}/api/session")
 
     async def async_get_session_liveness(self) -> bool:
-        "Get the session liveness state"
+        """
+        Determine if a vehicle is connected to the charger.
+
+        This call checks the session's liveness, indicating whether a vehicle 
+        is connected to the charger. Note that "connected" refers to the physical 
+        connection between the vehicle and the charger, regardless of whether 
+        charging is actively in progress.
+        """
         live = await self._async_api_wrapper(
             "get", f"{self.base_url}/api/session/alive"
         )
