@@ -79,6 +79,20 @@ class EOApiClient:
         "Get the current session if any"
         return await self._async_api_wrapper("get", f"{self.base_url}/api/session")
 
+    async def async_get_session_liveness(self) -> bool:
+        """
+        Determine if a vehicle is connected to the charger.
+
+        This call checks the session's liveness, indicating whether a vehicle 
+        is connected to the charger. Note that "connected" refers to the physical 
+        connection between the vehicle and the charger, regardless of whether 
+        charging is actively in progress.
+        """
+        live = await self._async_api_wrapper(
+            "get", f"{self.base_url}/api/session/alive"
+        )
+        return live is not None
+
     async def async_post_disable(self, address) -> list[dict]:
         "Disable the charger (lock)"
         return await self._async_api_wrapper(
@@ -151,6 +165,8 @@ class EOApiClient:
                 text = await response.read()
                 _LOGGER.info("Response: %r", text)
                 return text
+        if response.status == 404:
+            return None
         elif response.status == 400:
             # Handle expired/invalid tokens
             if not _reissue:

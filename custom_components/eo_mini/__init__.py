@@ -4,14 +4,16 @@ Custom integration to integrate EO Mini with Home Assistant.
 For more details about this integration, please refer to
 https://github.com/twhittock/eo_mini
 """
+
 import asyncio
 from datetime import timedelta
 import logging
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import Config, HomeAssistant
+from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.typing import ConfigType
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import EOApiClient, EOAuthError
@@ -42,7 +44,7 @@ def eo_model(hub_serial: str):
 
 
 # pylint: disable-next=unused-argument
-async def async_setup(hass: HomeAssistant, config: Config):
+async def async_setup(hass: HomeAssistant, config: ConfigType):
     "Setting up this integration using YAML is not supported."
     return True
 
@@ -68,11 +70,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     await coordinator.async_config_entry_first_refresh()
 
-    for platform in PLATFORMS:
-        coordinator.platforms.append(platform)
-        hass.async_add_job(
-            hass.config_entries.async_forward_entry_setup(entry, platform)
-        )
+    coordinator.platforms.extend(PLATFORMS)
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
     return True
@@ -113,7 +112,7 @@ class EODataUpdateCoordinator(DataUpdateCoordinator):
             self.device = self._minis_list[0]
             self.serial = self.device["hubSerial"]
             self.model = eo_model(self.serial)
-
+            self.live_session = await self.api.async_get_session_liveness()
             self.data = await self.api.async_get_session()
 
             self.async_update_listeners()
