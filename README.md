@@ -1,3 +1,7 @@
+# Archived repository
+
+This repository is archived due to relying on a rug-pulled service by EO. [Open EO](https://github.com/minceheid/openeo) exists as a community effort to try to plug the gap left by the EO abandonware.
+
 # EO Mini
 
 _Home Assistant component to integrate with [EO Mini chargers](https://www.eocharging.com/support/home-charging/eo-mini)._
@@ -42,3 +46,4 @@ custom_components/eo_mini/switch.py
 ## Contributions are welcome!
 
 If you want to contribute to this please read the [Contribution guidelines](CONTRIBUTING.md)
+
